@@ -15,6 +15,21 @@ class MemcachePool extends AbstractCachePool
   }
 
   /**
+   * Add a server to the memcache pool
+   *
+   * @param     $host
+   * @param int $port
+   * @param int $weight
+   *
+   * @return $this
+   */
+  public function addServer($host, $port = 11211, $weight = 0)
+  {
+    $this->_connection->addServer($host, $port, $weight);
+    return $this;
+  }
+
+  /**
    * Delete a key from the cache pool
    *
    * @param $key
@@ -44,7 +59,7 @@ class MemcachePool extends AbstractCachePool
   {
     $item  = new CacheItem($this, $key);
     $value = $this->_connection->get($key);
-    if($value === null)
+    if($value !== null)
     {
       $item->hydrate($value, true);
     }
