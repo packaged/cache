@@ -1,4 +1,4 @@
-cache
+Cache
 =====
 
-Cache
+PHP Cache Library
