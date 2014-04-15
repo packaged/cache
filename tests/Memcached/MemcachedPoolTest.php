@@ -13,7 +13,7 @@ class MemcachedPoolTest extends AbstractCachePoolTest
   public function initiateCachePool($name)
   {
     $pool = new \Packaged\Cache\Memcached\MemcachedPool($name);
-    $pool->addServer('localhost.dev');
+    $pool->addServer('localhost');
     return $pool;
   }
 }
