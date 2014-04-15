@@ -1,32 +1,22 @@
 <?php
-namespace Packaged\Cache\Memcache;
+namespace Packaged\Cache\Ephemeral;
 
 use Packaged\Cache\AbstractCachePool;
 use Packaged\Cache\CacheItem;
 use Packaged\Cache\ICacheItem;
 
-class MemcachePool extends AbstractCachePool
+class EphemeralCachePool extends AbstractCachePool
 {
-  protected $_connection;
+  protected static $cachePool;
+  protected $_pool;
 
   public function __construct($poolName = null)
   {
-    $this->_connection = new \Memcache();
-  }
-
-  /**
-   * Add a server to the memcache pool
-   *
-   * @param     $host
-   * @param int $port
-   * @param int $weight
-   *
-   * @return $this
-   */
-  public function addServer($host, $port = 11211, $weight = 0)
-  {
-    $this->_connection->addServer($host, $port, $weight);
-    return $this;
+    $this->_pool = $poolName;
+    if(!isset(self::$cachePool[$poolName]))
+    {
+      self::$cachePool[$poolName] = [];
+    }
   }
 
   /**
@@ -38,7 +28,8 @@ class MemcachePool extends AbstractCachePool
    */
   public function deleteKey($key)
   {
-    return $this->_connection->delete($key);
+    unset(self::$cachePool[$this->_pool][$key]);
+    return true;
   }
 
   /**
@@ -57,11 +48,10 @@ class MemcachePool extends AbstractCachePool
    */
   public function getItem($key)
   {
-    $item  = new CacheItem($this, $key);
-    $value = $this->_connection->get($key);
-    if($value !== false)
+    $item = new CacheItem($this, $key);
+    if(isset(self::$cachePool[$this->_pool][$key]))
     {
-      $item->hydrate($value, true);
+      $item->hydrate(self::$cachePool[$this->_pool][$key], true);
     }
     else
     {
@@ -78,7 +68,7 @@ class MemcachePool extends AbstractCachePool
    */
   public function clear()
   {
-    $this->_connection->flush();
+    self::$cachePool[$this->_pool] = [];
     return true;
   }
 
@@ -92,6 +82,7 @@ class MemcachePool extends AbstractCachePool
    */
   public function saveItem(ICacheItem $item, $ttl = null)
   {
-    return $this->_connection->set($item->getKey(), $item->get(), $ttl);
+    self::$cachePool[$this->_pool][$item->getKey()] = $item->get();
+    return true;
   }
 }

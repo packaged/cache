@@ -156,7 +156,7 @@ class CacheItem implements ICacheItem
   {
     if($this->_key !== null)
     {
-      return $this->_pool->deleteItem($this->_key);
+      return $this->_pool->deleteItem($this);
     }
     return false;
   }

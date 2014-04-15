@@ -1,44 +1,22 @@
 <?php
-namespace Packaged\Cache\Memcache;
+namespace Packaged\Cache\Blackhole;
 
 use Packaged\Cache\AbstractCachePool;
 use Packaged\Cache\CacheItem;
 use Packaged\Cache\ICacheItem;
 
-class MemcachePool extends AbstractCachePool
+class BlackholePool extends AbstractCachePool
 {
-  protected $_connection;
-
-  public function __construct($poolName = null)
-  {
-    $this->_connection = new \Memcache();
-  }
-
-  /**
-   * Add a server to the memcache pool
-   *
-   * @param     $host
-   * @param int $port
-   * @param int $weight
-   *
-   * @return $this
-   */
-  public function addServer($host, $port = 11211, $weight = 0)
-  {
-    $this->_connection->addServer($host, $port, $weight);
-    return $this;
-  }
-
   /**
    * Delete a key from the cache pool
    *
    * @param $key
    *
-   * @return bool
+   * @return mixed
    */
   public function deleteKey($key)
   {
-    return $this->_connection->delete($key);
+    return true;
   }
 
   /**
@@ -50,24 +28,14 @@ class MemcachePool extends AbstractCachePool
    * @param string $key
    *   The key for which to return the corresponding Cache Item.
    *
-   * @return ICacheItem
+   * @return \Packaged\Cache\ICacheItem
    *   The corresponding Cache Item.
    * @throws \RuntimeException
    *   If the $key string is not a legal value
    */
   public function getItem($key)
   {
-    $item  = new CacheItem($this, $key);
-    $value = $this->_connection->get($key);
-    if($value !== false)
-    {
-      $item->hydrate($value, true);
-    }
-    else
-    {
-      $item->hydrate(null, false);
-    }
-    return $item;
+    return (new CacheItem($this, $key))->hydrate($key, $key !== null);
   }
 
   /**
@@ -78,20 +46,19 @@ class MemcachePool extends AbstractCachePool
    */
   public function clear()
   {
-    $this->_connection->flush();
     return true;
   }
 
   /**
    * Save cache item
    *
-   * @param ICacheItem $item
-   * @param int|null   $ttl
+   * @param \Packaged\Cache\ICacheItem $item
+   * @param int|null                   $ttl
    *
    * @return bool
    */
   public function saveItem(ICacheItem $item, $ttl = null)
   {
-    return $this->_connection->set($item->getKey(), $item->get(), $ttl);
+    return true;
   }
 }

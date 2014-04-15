@@ -38,6 +38,10 @@ abstract class AbstractCachePool implements ICachePool
     $results = [];
     foreach($keys as $key)
     {
+      if($key instanceof ICacheItem)
+      {
+        $key = $key->getKey();
+      }
       $results[$key] = $this->deleteKey($key);
     }
     return $results;
@@ -60,7 +64,7 @@ abstract class AbstractCachePool implements ICachePool
    *
    * @param $key
    *
-   * @return mixed
+   * @return bool
    */
   abstract public function deleteKey($key);
 
@@ -82,5 +86,24 @@ abstract class AbstractCachePool implements ICachePool
       }
     }
     return $results;
+  }
+
+  /**
+   * Create a new cache item
+   *
+   * @param      $key
+   * @param null $value
+   * @param null $ttl
+   *
+   * @return CacheItem
+   */
+  public function createItem($key, $value = null, $ttl = null)
+  {
+    $item = new CacheItem($this, $key);
+    if($value !== null)
+    {
+      $item->set($value, $ttl);
+    }
+    return $item;
   }
 }
