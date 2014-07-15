@@ -35,7 +35,7 @@ class BlackholePool extends AbstractCachePool
    */
   public function getItem($key)
   {
-    return (new CacheItem($this, $key))->hydrate($key, $key !== null);
+    return (new CacheItem($this, $key))->hydrate($key, false);
   }
 
   /**
