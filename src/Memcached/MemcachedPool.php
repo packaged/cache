@@ -1,6 +1,7 @@
 <?php
 namespace Packaged\Cache\Memcached;
 
+use Packaged\Cache\ICacheItem;
 use Packaged\Cache\Memcache\MemcachePool;
 
 class MemcachedPool extends MemcachePool
@@ -21,5 +22,18 @@ class MemcachedPool extends MemcachePool
   public function clear()
   {
     return $this->_connection->flush();
+  }
+
+  /**
+   * Save cache item
+   *
+   * @param ICacheItem $item
+   * @param int|null   $ttl
+   *
+   * @return bool
+   */
+  public function saveItem(ICacheItem $item, $ttl = null)
+  {
+    return $this->_connection->set($item->getKey(), $item->get(), $ttl);
   }
 }

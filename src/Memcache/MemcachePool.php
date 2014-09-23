@@ -92,6 +92,6 @@ class MemcachePool extends AbstractCachePool
    */
   public function saveItem(ICacheItem $item, $ttl = null)
   {
-    return $this->_connection->set($item->getKey(), $item->get(), $ttl);
+    return $this->_connection->set($item->getKey(), $item->get(), null, $ttl);
   }
 }
