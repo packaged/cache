@@ -4,12 +4,14 @@ namespace Packaged\Cache\Memcache;
 use Packaged\Cache\AbstractCachePool;
 use Packaged\Cache\CacheItem;
 use Packaged\Cache\ICacheItem;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\InvalidArgumentException;
 
 class MemcachePool extends AbstractCachePool
 {
   protected $_connection;
 
-  public function __construct($poolName = null)
+  public function __construct()
   {
     $this->_connection = new \Memcache();
   }
@@ -44,16 +46,18 @@ class MemcachePool extends AbstractCachePool
   /**
    * Returns a Cache Item representing the specified key.
    *
-   * This method must always return an ItemInterface object, even in case of
+   * This method must always return a CacheItemInterface object, even in case of
    * a cache miss. It MUST NOT return null.
    *
    * @param string $key
    *   The key for which to return the corresponding Cache Item.
    *
-   * @return ICacheItem
+   * @throws InvalidArgumentException
+   *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
+   *   MUST be thrown.
+   *
+   * @return CacheItemInterface
    *   The corresponding Cache Item.
-   * @throws \RuntimeException
-   *   If the $key string is not a legal value
    */
   public function getItem($key)
   {

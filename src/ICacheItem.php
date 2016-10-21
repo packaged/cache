@@ -1,7 +1,9 @@
 <?php
 namespace Packaged\Cache;
 
-interface ICacheItem
+use Psr\Cache\CacheItemInterface;
+
+interface ICacheItem extends CacheItemInterface
 {
   /**
    * Returns the key for the current cache item.

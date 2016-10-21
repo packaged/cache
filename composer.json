@@ -15,7 +15,8 @@
     "php": ">=5.4.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "*"
+    "phpunit/phpunit": "~5.6.1",
+    "psr/cache": "1.0.1"
   },
   "autoload":    {
     "psr-4": {

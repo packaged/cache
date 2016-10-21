@@ -15,13 +15,13 @@ class CacheItem implements ICacheItem
   public function __construct(ICachePool $pool, $key)
   {
     $this->_pool = $pool;
-    $this->_key  = $key;
+    $this->_key = $key;
   }
 
   public function hydrate($value, $exists = true)
   {
     $this->_exists = $exists;
-    $this->_value  = $value;
+    $this->_value = $value;
     return $this;
   }
 
@@ -86,7 +86,7 @@ class CacheItem implements ICacheItem
   public function set($value, $ttl = null)
   {
     $this->_value = $value;
-    $this->_ttl   = $ttl;
+    $this->_ttl = $ttl;
     return $this;
   }
 
@@ -174,5 +174,25 @@ class CacheItem implements ICacheItem
   public function exists()
   {
     return $this->_exists;
+  }
+
+  public function expiresAt($expiration)
+  {
+    if($expiration instanceof \DateTimeInterface)
+    {
+      $expiration = $expiration->getTimestamp();
+    }
+    $this->_ttl = $expiration - time();
+    return $this;
+  }
+
+  public function expiresAfter($time)
+  {
+    if($time instanceof \DateInterval)
+    {
+      return $this->expiresAt((new \DateTime())->add($time));
+    }
+    $this->_ttl = $time;
+    return $this;
   }
 }

@@ -1,8 +1,12 @@
 <?php
 namespace Packaged\Cache;
 
+use Psr\Cache\CacheItemInterface;
+
 abstract class AbstractCachePool implements ICachePool
 {
+  private $_deferred = [];
+
   /**
    * Returns a traversable set of cache items.
    *
@@ -15,7 +19,7 @@ abstract class AbstractCachePool implements ICachePool
    *   key is not found. However, if no keys are specified then an empty
    *   CollectionInterface object MUST be returned instead.
    */
-  public function getItems(array $keys = array())
+  public function getItems(array $keys = [])
   {
     $return = [];
     foreach($keys as $key)
@@ -50,13 +54,17 @@ abstract class AbstractCachePool implements ICachePool
   /**
    * Removes a cache item from the pool.
    *
-   * @param $key ICacheItem The item that should be removed.
+   * @param string $key The item that should be removed.
    *
    * @return bool
    */
-  public function deleteItem(ICacheItem $key)
+  public function deleteItem($key)
   {
-    return $this->deleteKey($key->getKey());
+    if($key instanceof ICacheItem)
+    {
+      $key = $key->getKey();
+    }
+    return $this->deleteKey($key);
   }
 
   /**
@@ -71,7 +79,7 @@ abstract class AbstractCachePool implements ICachePool
   /**
    * Save multiple items
    *
-   * @param array $items
+   * @param ICacheItem[] $items
    *
    * @return array[key,bool]
    */
@@ -86,6 +94,33 @@ abstract class AbstractCachePool implements ICachePool
       }
     }
     return $results;
+  }
+
+  public function saveDeferred(CacheItemInterface $item)
+  {
+    $this->_deferred[] = $item;
+    return true;
+  }
+
+  public function commit()
+  {
+    $this->saveItems($this->_deferred);
+    $this->_deferred = [];
+    return true;
+  }
+
+  public function save(CacheItemInterface $item)
+  {
+    if(!($item instanceof ICacheItem))
+    {
+      $item = new CacheItem($this, $item->getKey());
+    }
+    $this->saveItem($item);
+  }
+
+  public function hasItem($key)
+  {
+    return $this->getItem($key)->exists();
   }
 
   /**
